@@ -1,6 +1,7 @@
 package com.kawach.controller;
 
 import com.kawach.model.AuditRequest;
+import com.kawach.model.AuditResponse;
 import com.kawach.model.FraudScanRequest;
 import com.kawach.model.FraudScanResponse;
 import com.kawach.model.ThreatResponse;
@@ -23,7 +24,7 @@ public class ApiController {
     }
 
     @PostMapping("/audit-tos")
-    public Flux<ThreatResponse> auditTos(@RequestBody AuditRequest request) {
+    public Mono<AuditResponse> auditTos(@RequestBody AuditRequest request) {
         return geminiService.analyzeToS(request.rawText());
     }
 

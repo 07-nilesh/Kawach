@@ -2,6 +2,7 @@ package com.kawach.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kawach.model.AuditResponse;
 import com.kawach.model.FraudScanRequest;
 import com.kawach.model.FraudScanResponse;
 import com.kawach.model.ThreatResponse;
@@ -38,27 +39,37 @@ public class GeminiService {
         this.apiUrl = apiUrl;
     }
 
-    public Flux<ThreatResponse> analyzeToS(String rawText) {
+    public Mono<AuditResponse> analyzeToS(String rawText) {
         log.info("Analyzing ToS with Live Gemini API...");
         log.info("Incoming raw text length: {}", rawText != null ? rawText.length() : 0);
         String safeText = cleanText(rawText);
-        String prompt = "You will receive a 2,000-character snippet of a website. Perform a high-density security audit. Be concise but specific. You are a legal auditor. Analyze the following Terms of Service text. Identify up to 3 critical red flags or warnings. Output ONLY a valid JSON array of objects with keys: 'severity' (strictly 'Red', 'Yellow', or 'Green'), 'point' (the clause in 5 words or less), and 'explanation' (1 sentence why it matters). Do NOT wrap the JSON in markdown blocks. Just raw JSON.\n\nText to analyze:\n" + safeText;
+        String prompt = "You will receive a 2,000-character snippet of a website. You are looking at a summary snippet. Identify the 3 most important risks in these 2,000 characters. Explain everything in plain, simple English as if talking to a teenager. No legal jargon. Instead of 'Third-party data ingestion,' say 'They share your info with other companies.' Output ONLY a valid JSON object matching this exact schema: {\"verdict\": \"AGREE | CAUTION | REJECT\", \"verdictReason\": \"One sentence explaining the verdict.\", \"summary\": [\"Bullet 1\", \"Bullet 2\", \"Bullet 3\"], \"flags\": [{\"severity\": \"Red\", \"point\": \"Short title\", \"explanation\": \"Detailed risk\", \"exactQuote\": \"EXACT 5-8 word substring from the text\"}]}. For exactQuote, you MUST copy the text character-for-character from the source. Do not change a single comma or capital letter. If you cannot find a perfect match, leave it blank. This quote will be used for exact DOM string matching. Do NOT wrap the JSON in markdown blocks. Just raw JSON.\n\nText to analyze:\n" + safeText;
 
         return callGemini(prompt)
-                .flatMapMany(responseText -> {
+                .flatMap(responseText -> {
                     try {
                         String sanitized = sanitizeJson(responseText);
-                        List<ThreatResponse> responses = objectMapper.readValue(sanitized, new TypeReference<List<ThreatResponse>>() {});
-                        return Flux.fromIterable(responses);
+                        AuditResponse response = objectMapper.readValue(sanitized, AuditResponse.class);
+                        return Mono.just(response);
                     } catch (Exception e) {
-                        log.error("Failed to parse JSON array from Gemini: {}", responseText, e);
-                        return Flux.just(new ThreatResponse("Yellow", "Analysis Error", "Failed to parse AI response."));
+                        log.error("Failed to parse JSON response from Gemini: {}", responseText, e);
+                        return Mono.just(new AuditResponse(
+                                "CAUTION", 
+                                "Failed to parse AI response.", 
+                                List.of(), 
+                                List.of(new ThreatResponse("Yellow", "Analysis Error", "Failed to parse AI response.", ""))
+                        ));
                     }
                 })
                 .timeout(Duration.ofSeconds(45))
                 .onErrorResume(e -> {
                     log.error("Error/Timeout in analyzeToS: ", e);
-                    return Flux.just(new ThreatResponse("Yellow", "Analysis Delayed", "The document is too large or the AI provider timed out."));
+                    return Mono.just(new AuditResponse(
+                            "CAUTION", 
+                            "The document is too large or the AI provider timed out.", 
+                            List.of(), 
+                            List.of(new ThreatResponse("Yellow", "Analysis Delayed", "Provider timeout or text too large.", ""))
+                    ));
                 });
     }
 
