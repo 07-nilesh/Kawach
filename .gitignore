@@ -1,0 +1,12 @@
+target/
+.mvn/
+.idea/
+.vscode/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+.env
+node_modules/
+.DS_Store
