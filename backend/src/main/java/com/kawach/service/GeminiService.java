@@ -5,7 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kawach.model.FraudScanRequest;
 import com.kawach.model.FraudScanResponse;
 import com.kawach.model.ThreatResponse;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -16,9 +17,6 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Service
 public class GeminiService {
@@ -41,43 +39,61 @@ public class GeminiService {
     }
 
     public Flux<ThreatResponse> analyzeToS(String rawText) {
+        log.info("Analyzing ToS with Live Gemini API...");
         String prompt = "You are a legal auditor. Analyze the following Terms of Service text. Identify up to 3 critical red flags or warnings. Output ONLY a valid JSON array of objects with keys: 'severity' (strictly 'Red', 'Yellow', or 'Green'), 'point' (the clause in 5 words or less), and 'explanation' (1 sentence why it matters). Do NOT wrap the JSON in markdown blocks. Just raw JSON.\n\nText to analyze:\n" + rawText;
 
         return callGemini(prompt)
                 .flatMapMany(responseText -> {
                     try {
-                        List<ThreatResponse> responses = objectMapper.readValue(responseText, new TypeReference<List<ThreatResponse>>() {});
+                        String sanitized = sanitizeJson(responseText);
+                        List<ThreatResponse> responses = objectMapper.readValue(sanitized, new TypeReference<List<ThreatResponse>>() {});
                         return Flux.fromIterable(responses);
                     } catch (Exception e) {
                         log.error("Failed to parse JSON array from Gemini: {}", responseText, e);
                         return Flux.just(new ThreatResponse("Yellow", "Analysis Error", "Failed to parse AI response."));
                     }
                 })
-                .timeout(Duration.ofSeconds(30))
+                .timeout(Duration.ofSeconds(15))
                 .onErrorResume(e -> {
                     log.error("Error/Timeout in analyzeToS: ", e);
-                    return Flux.just(new ThreatResponse("Yellow", "Timeout", "AI analysis timed out. Proceed with caution."));
+                    return Flux.just(new ThreatResponse("Yellow", "Provider Latency", "Google API timed out or failed. Proceed with caution."));
                 });
     }
 
     public Mono<FraudScanResponse> scanFraud(FraudScanRequest request) {
+        log.info("Scanning Fraud with Live Gemini API...");
         String prompt = "You are a cybersecurity analyzer. Analyze this URL and email list for phishing/scam risk. Output ONLY a valid JSON object with keys: 'scamProbability' (integer 0-100), 'riskLevel' (strictly 'High', 'Medium', or 'Low'), and 'findings' (a list of 2 short strings explaining the risk). Do NOT wrap the JSON in markdown blocks. Just raw JSON.\n\nURL: " + request.url() + "\nEmails: " + request.detectedEmails();
 
         return callGemini(prompt)
                 .flatMap(responseText -> {
                     try {
-                        FraudScanResponse response = objectMapper.readValue(responseText, FraudScanResponse.class);
+                        String sanitized = sanitizeJson(responseText);
+                        FraudScanResponse response = objectMapper.readValue(sanitized, FraudScanResponse.class);
                         return Mono.just(response);
                     } catch (Exception e) {
                         log.error("Failed to parse JSON object from Gemini: {}", responseText, e);
                         return Mono.just(new FraudScanResponse(50, "Medium", List.of("Failed to parse AI analysis.", "Proceed with caution.")));
                     }
                 })
-                .timeout(Duration.ofSeconds(30))
+                .timeout(Duration.ofSeconds(15))
                 .onErrorResume(e -> {
                     log.error("Error/Timeout in scanFraud: ", e);
-                    return Mono.just(new FraudScanResponse(50, "Medium", List.of("AI analysis timed out.", "Proceed with caution.")));
+                    return Mono.just(new FraudScanResponse(50, "Medium", List.of("Provider Latency - Google API timed out or failed.", "Proceed with caution.")));
                 });
+    }
+
+    private String sanitizeJson(String raw) {
+        if (raw == null) return "";
+        String trimmed = raw.trim();
+        if (trimmed.startsWith("```json")) {
+            trimmed = trimmed.substring(7);
+        } else if (trimmed.startsWith("```")) {
+            trimmed = trimmed.substring(3);
+        }
+        if (trimmed.endsWith("```")) {
+            trimmed = trimmed.substring(0, trimmed.length() - 3);
+        }
+        return trimmed.trim();
     }
 
     private Mono<String> callGemini(String prompt) {
@@ -91,12 +107,6 @@ public class GeminiService {
 
         String maskedKey = apiKey != null && apiKey.length() > 8 ? apiKey.substring(0, 4) + "****" + apiKey.substring(apiKey.length() - 4) : "****";
         log.info("Sending request to Gemini API: {}?key={}", apiUrl, maskedKey);
-        
-        try {
-            log.info("Request body: {}", objectMapper.writeValueAsString(requestBody));
-        } catch (Exception e) {
-            log.warn("Could not serialize request body for logging.");
-        }
 
         return webClient.post()
                 .uri(apiUrl + "?key=" + apiKey)
@@ -108,7 +118,7 @@ public class GeminiService {
                     try {
                         log.info("Raw Success Response from Gemini: {}", objectMapper.writeValueAsString(response));
                     } catch (Exception e) {
-                        log.info("Raw Success Response from Gemini: {}", response);
+                        // ignore
                     }
                 })
                 .doOnError(error -> log.error("WebClient Error from Gemini API: {}", error.getMessage(), error))
