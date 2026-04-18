@@ -147,7 +147,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 if (response && response.success) {
-                    const payload = actionType === "SCRAPE_TOS" ? { text: response.data } : response.data;
+                    const payload = actionType === "SCRAPE_TOS" 
+                        ? { rawText: response.data } 
+                        : { url: response.data.url, detectedEmails: response.data.emails };
                     await sendToBackend(endpoint, payload);
                 }
             });
