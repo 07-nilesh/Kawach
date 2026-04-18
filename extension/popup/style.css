@@ -1,0 +1,394 @@
+/* ============================================
+   KAWACH — Premium Extension Styles
+   ============================================ */
+
+:root {
+    --bg-primary: #1a1a2e;
+    --bg-secondary: #16213e;
+    --bg-card: #1e2a45;
+    --accent-gold: #d4a853;
+    --accent-gold-dim: #b8923e;
+    --accent-gold-glow: rgba(212, 168, 83, 0.15);
+    --text-primary: #f0e6d3;
+    --text-secondary: #a09880;
+    --text-muted: #6b6355;
+    --red: #e74c3c;
+    --red-bg: rgba(231, 76, 60, 0.12);
+    --yellow: #f39c12;
+    --yellow-bg: rgba(243, 156, 18, 0.12);
+    --green: #2ecc71;
+    --green-bg: rgba(46, 204, 113, 0.12);
+    --radius: 12px;
+    --radius-sm: 8px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(160deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+    color: var(--text-primary);
+    width: 400px;
+    height: 540px;
+    overflow: hidden;
+}
+
+.popup-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 16px;
+}
+
+/* ---- Header ---- */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, rgba(212, 168, 83, 0.15) 0%, rgba(30, 42, 69, 0.8) 100%);
+    border-radius: var(--radius);
+    border: 1px solid rgba(212, 168, 83, 0.2);
+    margin-bottom: 14px;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.shield-icon {
+    color: var(--accent-gold);
+    background: rgba(212, 168, 83, 0.12);
+    padding: 6px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.brand-name {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: 3px;
+    line-height: 1.1;
+}
+
+.brand-tagline {
+    font-size: 9px;
+    font-weight: 500;
+    color: var(--accent-gold);
+    letter-spacing: 2px;
+    margin-top: 1px;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: background 0.3s ease;
+}
+
+.status-dot.online {
+    background: var(--green);
+    box-shadow: 0 0 8px rgba(46, 204, 113, 0.6);
+    animation: pulse-green 2s infinite;
+}
+
+.status-dot.offline {
+    background: var(--red);
+    box-shadow: 0 0 8px rgba(231, 76, 60, 0.5);
+}
+
+@keyframes pulse-green {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* ---- Action Buttons ---- */
+.actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 12px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 0.3px;
+}
+
+.btn:active {
+    transform: scale(0.97);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-audit {
+    background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-gold-dim) 100%);
+    color: #1a1a2e;
+}
+
+.btn-audit:hover:not(:disabled) {
+    box-shadow: 0 4px 16px rgba(212, 168, 83, 0.35);
+}
+
+.btn-scan {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 1px solid rgba(212, 168, 83, 0.3);
+}
+
+.btn-scan:hover:not(:disabled) {
+    background: rgba(212, 168, 83, 0.15);
+    border-color: var(--accent-gold);
+}
+
+/* ---- Results ---- */
+.results-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.results-container {
+    flex: 1;
+    overflow-y: auto;
+    background: rgba(30, 42, 69, 0.5);
+    border: 1px solid rgba(212, 168, 83, 0.1);
+    border-radius: var(--radius);
+    padding: 12px;
+}
+
+.results-container::-webkit-scrollbar {
+    width: 4px;
+}
+
+.results-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.results-container::-webkit-scrollbar-thumb {
+    background: rgba(212, 168, 83, 0.3);
+    border-radius: 4px;
+}
+
+.placeholder-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-muted);
+    text-align: center;
+    gap: 12px;
+}
+
+.placeholder-text p {
+    font-size: 12px;
+    line-height: 1.6;
+    max-width: 260px;
+}
+
+.placeholder-icon {
+    color: rgba(212, 168, 83, 0.25);
+}
+
+/* ---- Threat Cards ---- */
+.threat-card {
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 8px;
+    border-left: 3px solid;
+    animation: slideIn 0.3s ease forwards;
+    opacity: 0;
+    transform: translateY(8px);
+}
+
+.threat-card:last-child {
+    margin-bottom: 0;
+}
+
+@keyframes slideIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.threat-card.red {
+    background: var(--red-bg);
+    border-color: var(--red);
+}
+
+.threat-card.yellow {
+    background: var(--yellow-bg);
+    border-color: var(--yellow);
+}
+
+.threat-card.green {
+    background: var(--green-bg);
+    border-color: var(--green);
+}
+
+.threat-severity {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.threat-card.red .threat-severity { color: var(--red); }
+.threat-card.yellow .threat-severity { color: var(--yellow); }
+.threat-card.green .threat-severity { color: var(--green); }
+
+.severity-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.threat-card.red .severity-dot { background: var(--red); }
+.threat-card.yellow .severity-dot { background: var(--yellow); }
+.threat-card.green .severity-dot { background: var(--green); }
+
+.threat-point {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 3px;
+}
+
+.threat-explanation {
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+/* ---- Fraud Result ---- */
+.fraud-result {
+    text-align: center;
+    animation: slideIn 0.3s ease forwards;
+    opacity: 0;
+}
+
+.fraud-score {
+    font-size: 48px;
+    font-weight: 800;
+    margin: 8px 0 4px;
+}
+
+.fraud-score.low { color: var(--green); }
+.fraud-score.medium { color: var(--yellow); }
+.fraud-score.high { color: var(--red); }
+
+.fraud-risk-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+
+.fraud-risk-label.low { color: var(--green); }
+.fraud-risk-label.medium { color: var(--yellow); }
+.fraud-risk-label.high { color: var(--red); }
+
+.fraud-findings {
+    text-align: left;
+    padding: 0;
+    list-style: none;
+}
+
+.fraud-findings li {
+    font-size: 11px;
+    color: var(--text-secondary);
+    padding: 6px 10px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 6px;
+    margin-bottom: 6px;
+    line-height: 1.4;
+    border-left: 2px solid var(--accent-gold-dim);
+}
+
+/* ---- Loading ---- */
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 16px;
+    color: var(--text-muted);
+}
+
+.loading-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid rgba(212, 168, 83, 0.2);
+    border-top-color: var(--accent-gold);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.loading-text {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+/* ---- Footer ---- */
+.footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 10px;
+    margin-top: 10px;
+    border-top: 1px solid rgba(212, 168, 83, 0.1);
+}
+
+.footer-brand {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+}
+
+.footer-powered {
+    font-size: 9px;
+    color: var(--text-muted);
+    font-style: italic;
+}

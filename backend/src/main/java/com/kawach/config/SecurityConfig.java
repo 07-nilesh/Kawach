@@ -11,7 +11,7 @@ public class SecurityConfig implements WebFluxConfigurer {
     @Override
     public void addCorsMappings(@NonNull CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOriginPatterns("chrome-extension://*")
+                .allowedOriginPatterns("chrome-extension://*", "http://*", "https://*")
                 .allowedMethods("GET", "POST", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true)

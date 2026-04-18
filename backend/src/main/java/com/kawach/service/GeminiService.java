@@ -42,7 +42,7 @@ public class GeminiService {
         log.info("Analyzing ToS with Live Gemini API...");
         log.info("Incoming raw text length: {}", rawText != null ? rawText.length() : 0);
         String safeText = cleanText(rawText);
-        String prompt = "You are a legal auditor. Analyze the following Terms of Service text. Identify up to 3 critical red flags or warnings. Output ONLY a valid JSON array of objects with keys: 'severity' (strictly 'Red', 'Yellow', or 'Green'), 'point' (the clause in 5 words or less), and 'explanation' (1 sentence why it matters). Do NOT wrap the JSON in markdown blocks. Just raw JSON.\n\nText to analyze:\n" + safeText;
+        String prompt = "You will receive a 2,000-character snippet of a website. Perform a high-density security audit. Be concise but specific. You are a legal auditor. Analyze the following Terms of Service text. Identify up to 3 critical red flags or warnings. Output ONLY a valid JSON array of objects with keys: 'severity' (strictly 'Red', 'Yellow', or 'Green'), 'point' (the clause in 5 words or less), and 'explanation' (1 sentence why it matters). Do NOT wrap the JSON in markdown blocks. Just raw JSON.\n\nText to analyze:\n" + safeText;
 
         return callGemini(prompt)
                 .flatMapMany(responseText -> {
@@ -55,7 +55,7 @@ public class GeminiService {
                         return Flux.just(new ThreatResponse("Yellow", "Analysis Error", "Failed to parse AI response."));
                     }
                 })
-                .timeout(Duration.ofSeconds(25))
+                .timeout(Duration.ofSeconds(45))
                 .onErrorResume(e -> {
                     log.error("Error/Timeout in analyzeToS: ", e);
                     return Flux.just(new ThreatResponse("Yellow", "Analysis Delayed", "The document is too large or the AI provider timed out."));
@@ -64,7 +64,7 @@ public class GeminiService {
 
     public Mono<FraudScanResponse> scanFraud(FraudScanRequest request) {
         log.info("Scanning Fraud with Live Gemini API...");
-        String prompt = "Verification Logic: You are an elite cybersecurity analyst. If the site is a known, high-reputation domain like facebook.com, https://www.google.com/search?q=google.com, or microsoft.com, you must assign a 0% Scam Probability. Focus only on potential phishing, typo-squatting (e.g., https://www.google.com/search?q=faceb0ok.com), or predatory data clauses in the ToS. Output ONLY a valid JSON object with keys: 'scamProbability' (integer 0-100), 'riskLevel' (strictly 'High', 'Medium', or 'Low'), and 'findings' (a list of 2 short strings explaining the risk). Do NOT wrap the JSON in markdown blocks. Just raw JSON.\n\nURL: " + request.url() + "\nEmails: " + request.detectedEmails();
+        String prompt = "You will receive a 2,000-character snippet of a website. Perform a high-density security audit. Be concise but specific. Verification Logic: You are an elite cybersecurity analyst. If the site is a known, high-reputation domain like facebook.com, https://www.google.com/search?q=google.com, or microsoft.com, you must assign a 0% Scam Probability. Focus only on potential phishing, typo-squatting (e.g., https://www.google.com/search?q=faceb0ok.com), or predatory data clauses in the ToS. Output ONLY a valid JSON object with keys: 'scamProbability' (integer 0-100), 'riskLevel' (strictly 'High', 'Medium', or 'Low'), and 'findings' (a list of 2 short strings explaining the risk). Do NOT wrap the JSON in markdown blocks. Just raw JSON.\n\nURL: " + request.url() + "\nEmails: " + request.detectedEmails();
 
         return callGemini(prompt)
                 .flatMap(responseText -> {
@@ -77,10 +77,10 @@ public class GeminiService {
                         return Mono.just(new FraudScanResponse(50, "Medium", List.of("Failed to parse AI analysis.", "Proceed with caution.")));
                     }
                 })
-                .timeout(Duration.ofSeconds(25))
+                .timeout(Duration.ofSeconds(45))
                 .onErrorResume(e -> {
                     log.error("Error/Timeout in scanFraud: ", e);
-                    return Mono.just(new FraudScanResponse(0, "Unknown", List.of("Scan could not complete", "Provider timeout")));
+                    return Mono.just(new FraudScanResponse(0, "Processing Error", List.of("The AI provider is currently under heavy load. Please try again in a few seconds.")));
                 });
     }
 
@@ -89,7 +89,7 @@ public class GeminiService {
         String cleaned = input.replace("\"", "'")
                               .replaceAll("[\\n\\r\\t]+", " ")
                               .replaceAll("[^\\x00-\\x7F]", "");
-        return cleaned.length() > 3000 ? cleaned.substring(0, 3000) : cleaned;
+        return cleaned.length() > 2000 ? cleaned.substring(0, 2000) : cleaned;
     }
 
     private String sanitizeJson(String raw) {
