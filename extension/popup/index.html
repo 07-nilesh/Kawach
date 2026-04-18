@@ -4,32 +4,736 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sentinel-X</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Kawach Shield</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --amber: #F5A623;
+            --amber-d: #C27D0E;
+            --amber-g: #FFF4E0;
+            --cream: #FFFBF4;
+            --warm1: #FEF3DC;
+            --warm2: #FDECC8;
+            --sand: #E8D9B8;
+            --brown: #6B4E2A;
+            --brown-l: #9C7347;
+            --ink: #2B1E0E;
+            --ink-mid: #4A3520;
+            --ink-muted: #8C7355;
+            --green: #2D6A4F;
+            --green-bg: #E8F5EE;
+            --red: #C0392B;
+            --red-bg: #FDF0EE;
+            --yellow: #B7791F;
+            --yellow-bg: #FFFBEB;
+            --shadow: 0 2px 16px rgba(107, 78, 42, 0.12);
+            --shadow-sm: 0 1px 6px rgba(107, 78, 42, 0.08);
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--warm1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--sand);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--brown-l);
+        }
+
+        body {
+            background: var(--cream);
+            color: var(--ink);
+            width: 390px;
+            min-height: 540px;
+            max-height: 580px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ── HEADER ── */
+        .header {
+            background: linear-gradient(135deg, #2B1E0E 0%, #4A3520 60%, #6B4E2A 100%);
+            padding: 16px 20px 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -30px;
+            right: -20px;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: rgba(245, 166, 35, 0.08);
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            right: 60px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(245, 166, 35, 0.05);
+        }
+
+        .logo-ring {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: rgba(245, 166, 35, 0.15);
+            border: 1px solid rgba(245, 166, 35, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .logo-ring svg {
+            width: 22px;
+            height: 22px;
+            color: var(--amber);
+        }
+
+        .header-text {
+            flex: 1;
+        }
+
+        .header-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 20px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: 0.08em;
+            line-height: 1;
+        }
+
+        .header-title span {
+            color: var(--amber);
+        }
+
+        .header-sub {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.45);
+            letter-spacing: 0.12em;
+            margin-top: 3px;
+            font-weight: 300;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4ade80;
+            box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.2);
+            animation: pulse-green 2.5s ease-in-out infinite;
+            flex-shrink: 0;
+        }
+
+        @keyframes pulse-green {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.2);
+            }
+
+            50% {
+                box-shadow: 0 0 0 6px rgba(74, 222, 128, 0.1);
+            }
+        }
+
+        /* ── BODY ── */
+        .body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 16px 16px 14px;
+            gap: 10px;
+            overflow: hidden;
+        }
+
+        /* ── BUTTONS ── */
+        .btn-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .btn {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            padding: 11px 12px;
+            border-radius: 12px;
+            border: 1.5px solid;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 12.5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            overflow: hidden;
+            outline: none;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .btn:hover::before {
+            opacity: 1;
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-audit {
+            background: var(--warm1);
+            border-color: var(--sand);
+            color: var(--ink-mid);
+        }
+
+        .btn-audit::before {
+            background: linear-gradient(135deg, var(--warm2), var(--warm1));
+        }
+
+        .btn-audit:hover {
+            border-color: var(--amber);
+            color: var(--ink);
+            box-shadow: 0 2px 12px rgba(245, 166, 35, 0.15);
+        }
+
+        .btn-audit svg {
+            color: var(--amber-d);
+            flex-shrink: 0;
+        }
+
+        .btn-scan {
+            background: var(--ink);
+            border-color: var(--ink-mid);
+            color: var(--warm1);
+        }
+
+        .btn-scan::before {
+            background: var(--ink-mid);
+        }
+
+        .btn-scan:hover {
+            border-color: var(--amber);
+            box-shadow: 0 2px 12px rgba(43, 30, 14, 0.3);
+        }
+
+        .btn-scan svg {
+            color: var(--amber);
+            flex-shrink: 0;
+        }
+
+        .btn svg {
+            width: 15px;
+            height: 15px;
+        }
+
+        /* ── DIVIDER ── */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .divider-line {
+            flex: 1;
+            height: 1px;
+            background: var(--sand);
+            opacity: 0.6;
+        }
+
+        .divider-text {
+            font-size: 10px;
+            color: var(--ink-muted);
+            letter-spacing: 0.1em;
+        }
+
+        /* ── RESULTS PANEL ── */
+        .results-panel {
+            flex: 1;
+            background: var(--warm1);
+            border-radius: 14px;
+            border: 1px solid var(--sand);
+            overflow-y: auto;
+            min-height: 0;
+        }
+
+        .results-inner {
+            padding: 14px;
+        }
+
+        /* ── EMPTY STATE ── */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 180px;
+            gap: 8px;
+            opacity: 0.55;
+        }
+
+        .empty-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: var(--warm2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .empty-icon svg {
+            width: 18px;
+            height: 18px;
+            color: var(--brown-l);
+        }
+
+        .empty-label {
+            font-size: 12px;
+            color: var(--ink-muted);
+        }
+
+        /* ── RESULTS HEADER ── */
+        .results-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--sand);
+        }
+
+        .results-header-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--amber);
+            animation: pulse-amber 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-amber {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        .results-header-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        /* ── THREAT CARD ── */
+        .threat-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            padding: 10px 11px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            border-left: 3px solid;
+            transition: filter 0.15s;
+        }
+
+        .threat-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .threat-card.red {
+            background: var(--red-bg);
+            border-left-color: #E05252;
+        }
+
+        .threat-card.yellow {
+            background: var(--yellow-bg);
+            border-left-color: #D4A017;
+        }
+
+        .threat-card.green {
+            background: var(--green-bg);
+            border-left-color: #3A9968;
+        }
+
+        .threat-icon {
+            width: 15px;
+            height: 15px;
+            margin-top: 1px;
+            flex-shrink: 0;
+        }
+
+        .threat-icon.red {
+            color: var(--red);
+        }
+
+        .threat-icon.yellow {
+            color: var(--yellow);
+        }
+
+        .threat-icon.green {
+            color: var(--green);
+        }
+
+        .threat-cat {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--ink);
+            margin-bottom: 2px;
+        }
+
+        .threat-explanation {
+            font-size: 11px;
+            color: var(--ink-muted);
+            line-height: 1.55;
+        }
+
+        /* ── FRAUD PANEL ── */
+        .score-ring-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px 0 14px;
+            border-bottom: 1px solid var(--sand);
+            margin-bottom: 12px;
+        }
+
+        .score-label {
+            font-size: 10px;
+            letter-spacing: 0.18em;
+            color: var(--ink-muted);
+            margin-bottom: 10px;
+        }
+
+        .score-circle {
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            border: 3px solid;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--cream);
+        }
+
+        .score-circle.danger {
+            border-color: #E05252;
+        }
+
+        .score-circle.warn {
+            border-color: #D4A017;
+        }
+
+        .score-circle.safe {
+            border-color: #3A9968;
+        }
+
+        .score-num {
+            font-family: 'Syne', sans-serif;
+            font-size: 30px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .score-num .pct {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .score-num.danger {
+            color: var(--red);
+        }
+
+        .score-num.warn {
+            color: var(--yellow);
+        }
+
+        .score-num.safe {
+            color: var(--green);
+        }
+
+        .intel-box {
+            background: var(--warm2);
+            border-radius: 10px;
+            border: 1px solid var(--sand);
+            padding: 10px 12px;
+            margin-bottom: 8px;
+        }
+
+        .intel-title {
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            color: var(--brown-l);
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .intel-title svg {
+            width: 11px;
+            height: 11px;
+        }
+
+        .intel-body {
+            font-size: 11.5px;
+            color: var(--ink-mid);
+            line-height: 1.55;
+        }
+
+        .emails-box {
+            background: var(--warm2);
+            border-radius: 10px;
+            border: 1px solid var(--sand);
+            padding: 10px 12px;
+        }
+
+        .emails-title {
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            color: var(--brown-l);
+            margin-bottom: 7px;
+        }
+
+        .email-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .email-chip {
+            padding: 3px 8px;
+            border-radius: 20px;
+            background: var(--cream);
+            border: 1px solid var(--sand);
+            font-family: monospace;
+            font-size: 10px;
+            color: var(--ink-mid);
+        }
+
+        /* ── LOADING / ERROR ── */
+        .loading-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            height: 180px;
+        }
+
+        .spinner {
+            width: 28px;
+            height: 28px;
+            border: 2.5px solid var(--sand);
+            border-top-color: var(--amber);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            font-size: 12px;
+            color: var(--ink-muted);
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .loading-sub {
+            font-size: 10.5px;
+            color: var(--sand);
+            margin-top: 2px;
+        }
+
+        .error-box {
+            background: var(--red-bg);
+            border-radius: 10px;
+            border: 1px solid #FBCFCF;
+            padding: 12px;
+        }
+
+        .error-title {
+            font-size: 12.5px;
+            font-weight: 500;
+            color: var(--red);
+            margin-bottom: 4px;
+        }
+
+        .error-msg {
+            font-size: 11px;
+            color: #7A4A49;
+            line-height: 1.5;
+        }
+
+        .success-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--green-bg);
+            border-radius: 10px;
+            border: 1px solid #B8DEC8;
+            padding: 12px;
+        }
+
+        .success-box svg {
+            width: 16px;
+            height: 16px;
+            color: var(--green);
+            flex-shrink: 0;
+        }
+
+        .success-box span {
+            font-size: 12.5px;
+            color: var(--green);
+            font-weight: 500;
+        }
+
+        /* ── FOOTER ── */
+        .footer {
+            padding: 8px 16px;
+            border-top: 1px solid var(--sand);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .footer-brand {
+            font-family: 'Syne', sans-serif;
+            font-size: 9.5px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            color: var(--brown-l);
+            opacity: 0.6;
+        }
+
+        .footer-hint {
+            font-size: 9.5px;
+            color: var(--ink-muted);
+            opacity: 0.55;
+        }
+    </style>
 </head>
 
-<body class="bg-gray-900 text-white w-[400px] h-[500px] p-5 font-sans flex flex-col">
+<body>
 
-    <header class="border-b border-gray-700 pb-3 mb-5">
-        <h1 class="text-2xl font-bold text-center text-blue-500 tracking-wide">Sentinel-X Shield</h1>
+    <!-- HEADER -->
+    <header class="header">
+        <div class="logo-ring">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+        </div>
+        <div class="header-text">
+            <div class="header-title">KA<span>W</span>ACH</div>
+            <div class="header-sub">DIGITAL SHIELD · AI POWERED</div>
+        </div>
+        <div class="status-dot"></div>
     </header>
 
-    <main class="flex-grow flex flex-col gap-4">
-        <button id="audit-btn"
-            class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded shadow-lg transition-colors duration-200">
-            Audit Legal Text
-        </button>
+    <!-- BODY -->
+    <main class="body">
 
-        <button id="scan-btn"
-            class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-4 rounded shadow-lg transition-colors duration-200">
-            Scan for Fraud
-        </button>
-
-        <div id="results-container"
-            class="mt-4 flex-grow overflow-y-auto bg-gray-800 rounded p-4 text-sm text-gray-400 border border-gray-700">
-            Awaiting systems check...
+        <!-- BUTTONS -->
+        <div class="btn-row">
+            <button id="audit-btn" class="btn btn-audit">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Audit Legal Text
+            </button>
+            <button id="scan-btn" class="btn btn-scan">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                Scan for Fraud
+            </button>
         </div>
+
+        <!-- DIVIDER -->
+        <div class="divider">
+            <div class="divider-line"></div>
+            <span class="divider-text">ANALYSIS</span>
+            <div class="divider-line"></div>
+        </div>
+
+        <!-- RESULTS PANEL -->
+        <div class="results-panel">
+            <div class="results-inner" id="results-container">
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                    </div>
+                    <span class="empty-label">Awaiting your command…</span>
+                </div>
+            </div>
+        </div>
+
     </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <span class="footer-brand">KAWACH SHIELD</span>
+        <span class="footer-hint">Powered by Gemini AI</span>
+    </footer>
+
     <script src="popup.js"></script>
 </body>
 
