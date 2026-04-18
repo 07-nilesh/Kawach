@@ -1,4 +1,4 @@
-package com.sentinelx.config;
+package com.kawach.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.NonNull;
@@ -15,6 +15,6 @@ public class SecurityConfig implements WebFluxConfigurer {
                 .allowedMethods("GET", "POST", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true)
-                .maxAge(3600); // Cache preflight requests to reduce overhead
+                .maxAge(3600);
     }
 }

@@ -8,11 +8,11 @@
 		<version>3.2.4</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.sentinelx</groupId>
+	<groupId>com.kawach</groupId>
 	<artifactId>core</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>sentinelx-core</name>
-	<description>Sentinel-X Backend</description>
+	<name>kawach-core</name>
+	<description>Kawach Backend</description>
 	<properties>
 		<java.version>17</java.version>
 	</properties>

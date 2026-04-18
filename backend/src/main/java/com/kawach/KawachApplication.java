@@ -1,12 +1,12 @@
-package com.sentinelx;
+package com.kawach;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class SentinelXApplication {
+public class KawachApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(SentinelXApplication.class, args);
+        SpringApplication.run(KawachApplication.class, args);
     }
 }
