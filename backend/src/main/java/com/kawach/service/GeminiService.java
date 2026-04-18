@@ -40,7 +40,9 @@ public class GeminiService {
 
     public Flux<ThreatResponse> analyzeToS(String rawText) {
         log.info("Analyzing ToS with Live Gemini API...");
-        String prompt = "You are a legal auditor. Analyze the following Terms of Service text. Identify up to 3 critical red flags or warnings. Output ONLY a valid JSON array of objects with keys: 'severity' (strictly 'Red', 'Yellow', or 'Green'), 'point' (the clause in 5 words or less), and 'explanation' (1 sentence why it matters). Do NOT wrap the JSON in markdown blocks. Just raw JSON.\n\nText to analyze:\n" + rawText;
+        log.info("Incoming raw text length: {}", rawText != null ? rawText.length() : 0);
+        String safeText = cleanText(rawText);
+        String prompt = "You are a legal auditor. Analyze the following Terms of Service text. Identify up to 3 critical red flags or warnings. Output ONLY a valid JSON array of objects with keys: 'severity' (strictly 'Red', 'Yellow', or 'Green'), 'point' (the clause in 5 words or less), and 'explanation' (1 sentence why it matters). Do NOT wrap the JSON in markdown blocks. Just raw JSON.\n\nText to analyze:\n" + safeText;
 
         return callGemini(prompt)
                 .flatMapMany(responseText -> {
@@ -53,16 +55,16 @@ public class GeminiService {
                         return Flux.just(new ThreatResponse("Yellow", "Analysis Error", "Failed to parse AI response."));
                     }
                 })
-                .timeout(Duration.ofSeconds(15))
+                .timeout(Duration.ofSeconds(25))
                 .onErrorResume(e -> {
                     log.error("Error/Timeout in analyzeToS: ", e);
-                    return Flux.just(new ThreatResponse("Yellow", "Provider Latency", "Google API timed out or failed. Proceed with caution."));
+                    return Flux.just(new ThreatResponse("Yellow", "Analysis Delayed", "The document is too large or the AI provider timed out."));
                 });
     }
 
     public Mono<FraudScanResponse> scanFraud(FraudScanRequest request) {
         log.info("Scanning Fraud with Live Gemini API...");
-        String prompt = "You are a cybersecurity analyzer. Analyze this URL and email list for phishing/scam risk. Output ONLY a valid JSON object with keys: 'scamProbability' (integer 0-100), 'riskLevel' (strictly 'High', 'Medium', or 'Low'), and 'findings' (a list of 2 short strings explaining the risk). Do NOT wrap the JSON in markdown blocks. Just raw JSON.\n\nURL: " + request.url() + "\nEmails: " + request.detectedEmails();
+        String prompt = "Verification Logic: You are an elite cybersecurity analyst. If the site is a known, high-reputation domain like facebook.com, https://www.google.com/search?q=google.com, or microsoft.com, you must assign a 0% Scam Probability. Focus only on potential phishing, typo-squatting (e.g., https://www.google.com/search?q=faceb0ok.com), or predatory data clauses in the ToS. Output ONLY a valid JSON object with keys: 'scamProbability' (integer 0-100), 'riskLevel' (strictly 'High', 'Medium', or 'Low'), and 'findings' (a list of 2 short strings explaining the risk). Do NOT wrap the JSON in markdown blocks. Just raw JSON.\n\nURL: " + request.url() + "\nEmails: " + request.detectedEmails();
 
         return callGemini(prompt)
                 .flatMap(responseText -> {
@@ -75,11 +77,19 @@ public class GeminiService {
                         return Mono.just(new FraudScanResponse(50, "Medium", List.of("Failed to parse AI analysis.", "Proceed with caution.")));
                     }
                 })
-                .timeout(Duration.ofSeconds(15))
+                .timeout(Duration.ofSeconds(25))
                 .onErrorResume(e -> {
                     log.error("Error/Timeout in scanFraud: ", e);
-                    return Mono.just(new FraudScanResponse(50, "Medium", List.of("Provider Latency - Google API timed out or failed.", "Proceed with caution.")));
+                    return Mono.just(new FraudScanResponse(0, "Unknown", List.of("Scan could not complete", "Provider timeout")));
                 });
+    }
+
+    private String cleanText(String input) {
+        if (input == null) return "";
+        String cleaned = input.replace("\"", "'")
+                              .replaceAll("[\\n\\r\\t]+", " ")
+                              .replaceAll("[^\\x00-\\x7F]", "");
+        return cleaned.length() > 3000 ? cleaned.substring(0, 3000) : cleaned;
     }
 
     private String sanitizeJson(String raw) {
@@ -121,7 +131,7 @@ public class GeminiService {
                         // ignore
                     }
                 })
-                .doOnError(error -> log.error("WebClient Error from Gemini API: {}", error.getMessage(), error))
+                .doOnError(error -> log.error("GOOGLE API ERROR: {}", error.getMessage()))
                 .map(response -> {
                     try {
                         List<Map<String, Object>> candidates = (List<Map<String, Object>>) response.get("candidates");
